@@ -1,0 +1,78 @@
+/* Zalando Sans Expanded, the typeface of the Bauhaus Clock screensaver (SIL OFL 1.1, see fonts/OFL.txt). */
+@font-face {
+  font-family: "Zalando Sans Expanded";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("fonts/zalando-sans-expanded-latin-400-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Zalando Sans Expanded";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("fonts/zalando-sans-expanded-latin-500-normal.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Zalando Sans Expanded";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("fonts/zalando-sans-expanded-latin-600-normal.woff2") format("woff2");
+}
+
+/* The Turquoise dial's paper, with the screensaver's grain tile (512 samples shown at 256 CSS px). */
+body {
+  background-color: #AFF2F1;
+  background-image: url("grain-turquoise.png");
+  background-size: 256px 256px;
+}
+
+h1, h2, h3, h4, .navbar-brand, .navbar .nav-link {
+  font-family: "Zalando Sans Expanded", system-ui, sans-serif;
+}
+h1, h2, h3, h4 {
+  font-weight: 600;
+  color: #004F5D;
+  letter-spacing: -0.005em;
+}
+.navbar .nav-link, .navbar-brand {
+  font-weight: 500;
+}
+
+.navbar {
+  background: transparent !important;
+  border-bottom: 2px solid #007C84;
+}
+
+/* Code sits on a lighter plate, like the lume inlays. */
+pre, code {
+  background-color: rgba(228, 254, 255, 0.72);
+}
+pre {
+  border: 1px solid #7FCFCF;
+  border-radius: 6px;
+}
+
+/* Figures keep their own grained backgrounds; give them a little room. */
+.contents img, .template-home img {
+  border-radius: 4px;
+}
+.contents .figure, .contents p > img {
+  margin: 0.75rem 0 1.25rem;
+}
+
+/* Colour swatches in the palette tables. */
+.swatch {
+  display: inline-block;
+  width: 1.1em;
+  height: 1.1em;
+  border-radius: 50%;
+  vertical-align: -0.2em;
+  margin-right: 0.35em;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+footer {
+  border-top: 2px solid #007C84;
+}
