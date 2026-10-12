@@ -1,0 +1,138 @@
+---
+title: "Colours and palettes"
+description: "Every dial's measured colours, its eight-colour discrete palette and its sequential ramp."
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  dev = "ragg_png",
+  fig.width = 7,
+  fig.height = 4.4,
+  out.width = "100%"
+)
+library(ggplot2)
+library(bauhaus)
+```
+
+## Where the colours come from
+
+Each dial of the screensaver is a small colour system. Its colours were measured from the dial
+artwork and are stored in `bauhaus_dials`:
+
+* **paper** and **plate**: the plate as shown on screen (lifted by 13/255) and its nominal colour.
+* **numeral**: the hour numerals.
+* **track**: the minute track and the minute numerals.
+* **steel**, **hand** and **hub**: the polished steel of the indices, hands and hub.
+* **lume** and **lume_hand**: the luminous paint in the indices and hands, by daylight.
+* **shadow_core**, **shadow_ambient** and **shadow_contact**: the tinted shadows under the hands
+  and indices. On coloured dials these are deep, saturated versions of the plate.
+
+The palettes are built from these:
+
+* The **discrete** palette has eight colours. It opens with the dial's own signature colour and ink,
+  then borrows accents from the other dials (their plates, inks and shadow tints), chosen to stand
+  out against this dial's plate. Apart from the dial's own inks on the two mid-tone plates, Signal
+  Blue and Tennis, the first six colours of every palette reach a contrast ratio of at least 3:1
+  against the paper.
+* The **sequential** palette is a ramp of the dial's own colours. On light dials it runs from the
+  daylight lume through the signature colour to the numeral ink; on dark dials it rises from just
+  above the plate through the track ink to the numeral ink.
+
+## All palettes
+
+```{r overview, echo = FALSE, fig.height = 9}
+d <- bauhaus_dials
+n <- nrow(d)
+rows <- data.frame(dial = d$name, y = rev(seq_len(n)), paper = d$paper, ink = d$numeral)
+
+dots <- do.call(rbind, lapply(seq_len(n), function(i) {
+  data.frame(y = rows$y[i], x = 3 + 0:7 * 0.62, colour = bauhaus_palette(d$dial[i]))
+}))
+
+ggplot() +
+  geom_tile(aes(x = 5.65, y = y, fill = I(paper)), data = rows, width = 11.3, height = 0.94) +
+  geom_text(aes(x = 0.15, y = y, label = dial, colour = I(ink)), data = rows, hjust = 0, size = 3.4, family = bauhaus_font_family("semibold")) +
+  geom_point(aes(x, y, colour = I(colour)), data = dots, size = 5.2) +
+  lapply(seq_len(n), function(i) {
+    ramp <- bauhaus_palette(d$dial[i], type = "sequential", n = 200)
+    annotation_raster(matrix(ramp, nrow = 1), xmin = 8.3, xmax = 10.7, ymin = rows$y[i] - 0.21, ymax = rows$y[i] + 0.21)
+  }) +
+  annotate("text", x = c(3 + 3.5 * 0.62, 9.5), y = n + 0.85, label = c("Discrete", "Sequential"), size = 3.2, family = bauhaus_font_family(), colour = "#004F5D") +
+  scale_x_continuous(limits = c(0, 11.3), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0.5, n + 1.2), expand = c(0, 0)) +
+  theme_void() +
+  theme(plot.background = element_grain(fill = bauhaus_colours("turquoise")[["paper"]], colour = NA, sigma = 3.8))
+```
+
+## The colours of each dial
+
+```{r table, echo = FALSE, results = "asis"}
+swatch <- function(hex) sprintf('<span class="swatch" style="background:%s"></span><code>%s</code>', hex, hex)
+cols <- c("paper", "numeral", "track", "steel", "lume", "shadow_core")
+cat("<table class='table'>\n<thead><tr><th>Dial</th>", paste0("<th>", cols, "</th>", collapse = ""), "<th>Discrete palette</th></tr></thead>\n<tbody>\n")
+for (i in seq_len(nrow(bauhaus_dials))) {
+  row <- bauhaus_dials[i, ]
+  pal <- paste(sprintf('<span class="swatch" style="background:%s" title="%s"></span>', bauhaus_palette(row$dial), bauhaus_palette(row$dial)), collapse = "")
+  cat(sprintf(
+    "<tr><td><strong>%s</strong><br><code>\"%s\"</code></td>%s<td style='white-space:nowrap'>%s</td></tr>\n",
+    row$name, row$dial, paste0("<td>", vapply(cols, function(c) swatch(row[[c]]), ""), "</td>", collapse = ""), pal
+  ))
+}
+cat("</tbody></table>\n")
+```
+
+Get any of them in R:
+
+```{r colours}
+bauhaus_colours("signal_blue")
+bauhaus_palette("signal_blue")
+bauhaus_palette("signal_blue", type = "sequential", n = 5)
+```
+
+## Using the palettes
+
+Inside a Bauhaus theme the dial's palettes are already the defaults. Scales let you use another
+dial's palette, reverse it, or bin it:
+
+```{r reverse}
+ggplot(faithfuld, aes(waiting, eruptions, fill = density)) +
+  geom_raster() +
+  scale_fill_bauhaus_c("sky_blue", reverse = TRUE) +
+  coord_cartesian(expand = FALSE) +
+  labs(title = "Reversed sequential palette", x = "Waiting (min)", y = "Eruption (min)") +
+  theme_bauhaus("sky_blue")
+```
+
+```{r binned}
+ggplot(faithfuld, aes(waiting, eruptions, z = density)) +
+  geom_contour_filled(bins = 7) +
+  scale_fill_bauhaus_d("salmon") +
+  coord_cartesian(expand = FALSE) +
+  labs(title = "Filled contours", x = "Waiting (min)", y = "Eruption (min)", fill = "Density") +
+  theme_bauhaus("cream")
+```
+
+They work with other themes as well:
+
+```{r other-theme}
+ggplot(mpg, aes(displ, hwy, colour = class)) +
+  geom_point(size = 2) +
+  scale_colour_bauhaus_d("turquoise") +
+  labs(title = "A Bauhaus palette on theme_minimal()", x = "Displacement (l)", y = "Highway mpg") +
+  theme_minimal()
+```
+
+The discrete palettes stop at eight colours, because more categories than that are hard to tell
+apart. With more groups, ggplot2 warns and leaves the extra ones grey; consider lumping the smallest
+groups together.
+
+For base graphics, use the colour vectors directly:
+
+```{r base}
+op <- par(bg = bauhaus_colours("yellow")[["paper"]], family = "sans")
+barplot(VADeaths, beside = TRUE, col = bauhaus_palette("yellow", n = 5), border = NA)
+par(op)
+```

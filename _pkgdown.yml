@@ -1,0 +1,73 @@
+url: https://ashgreat.github.io/bauhaus-clock-ggplot/
+
+template:
+  bootstrap: 5
+  light-switch: false
+  bslib:
+    bg: "#AFF2F1"
+    fg: "#003A45"
+    primary: "#00646C"
+    secondary: "#007C84"
+    link-color: "#00585F"
+    heading_font: "Zalando Sans Expanded"
+    navbar-bg: "#AFF2F1"
+    border-color: "#7FCFCF"
+    code-bg: "#D3F8F7"
+    pre-bg: "#D3F8F7"
+  includes:
+    in_header: |
+      <meta name="theme-color" content="#AFF2F1">
+
+home:
+  title: "bauhaus: ggplot2 themes from the Bauhaus Clock dials"
+  description: >
+    Sixteen ggplot2 themes, one for each day dial of the Bauhaus Clock screensaver, with the
+    screensaver's paper grain, typeface and measured colours.
+
+navbar:
+  structure:
+    left: [intro, gallery, articles, reference, news]
+    right: [search, github]
+  components:
+    gallery:
+      text: Gallery
+      href: articles/gallery.html
+
+reference:
+  - title: Themes
+    desc: One theme per day dial of the screensaver.
+    contents:
+      - theme_bauhaus
+      - theme_bauhaus_dials
+  - title: Scales and palettes
+    desc: Each dial's discrete and sequential palettes, as ggplot2 scales and palette functions.
+    contents:
+      - scale_bauhaus
+      - bauhaus_palette
+  - title: Dials and colours
+    desc: The measured colours of each dial.
+    contents:
+      - bauhaus_colours
+      - bauhaus_dial_names
+      - bauhaus_dials
+  - title: Paper grain
+    contents:
+      - element_grain
+  - title: Typeface
+    contents:
+      - bauhaus_font_family
+  - title: The dial itself
+    contents:
+      - bauhaus_clock
+  - title: internal
+    contents:
+      - bauhaus-package
+
+articles:
+  - title: Guides
+    navbar: ~
+    contents:
+      - articles/gallery
+      - articles/palettes
+      - articles/grain
+      - articles/clock

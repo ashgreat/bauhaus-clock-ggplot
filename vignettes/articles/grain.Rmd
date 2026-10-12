@@ -1,0 +1,140 @@
+---
+title: "The paper grain"
+description: "How the screensaver's paper grain is made, and how to control it in your plots."
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  message = FALSE,
+  dev = "ragg_png",
+  fig.width = 7,
+  fig.height = 4.4,
+  out.width = "100%"
+)
+library(ggplot2)
+library(bauhaus)
+```
+
+The plates of the Bauhaus Clock screensaver are not flat fills. They carry a fine paper grain,
+which is what keeps a coloured plate from reading as a computer-drawn rectangle. bauhaus draws the
+same grain behind your plots.
+
+## How the grain is made
+
+The grain is the screensaver's own, generated the same way and from the same seed:
+
+1. Uniform white noise from a 32-bit xorshift generator fills a seamless 512 x 512 tile.
+2. The noise is passed through a small 7 x 5 kernel measured from the original artwork. The kernel
+   smooths along rows and sharpens across them, so the grain is made of short horizontal streaks,
+   two to three samples long. There is no mottling, gradient, vignette or fibre.
+3. The result is scaled to unit variance and its tails are softened.
+4. For each dial, the plate colour is lifted by 13/255 and the grain is added equally to red, green
+   and blue, at the strength measured for that dial.
+
+The strengths, as standard deviations in 8-bit code values:
+
+```{r strengths}
+bauhaus_dials[order(bauhaus_dials$grain), c("name", "grain")]
+```
+
+Up close, the grain on the Tennis dial looks like this (magnified eight times):
+
+```{r closeup, echo = FALSE, fig.width = 7, fig.height = 2.6}
+tile <- function(dial, n = 72) {
+  col <- bauhaus_colours(dial)[["paper"]]
+  sigma <- bauhaus_dials$grain[bauhaus_dials$dial == dial]
+  img <- bauhaus:::grain_image(col, sigma, n, n)
+  packed <- matrix(as.vector(img), nrow = n, byrow = TRUE)
+  rgb <- grDevices::rgb(packed %% 256, (packed %/% 256) %% 256, (packed %/% 65536) %% 256, maxColorValue = 255)
+  data.frame(x = rep(seq_len(n), each = n), y = rep(rev(seq_len(n)), n), fill = rgb, dial = bauhaus_dials$name[bauhaus_dials$dial == dial])
+}
+tiles <- do.call(rbind, lapply(c("tennis", "turquoise", "cream", "noir"), tile))
+tiles$dial <- factor(tiles$dial, levels = c("Tennis", "Turquoise", "Cream", "Noir"))
+ggplot(tiles, aes(x, y, fill = I(fill))) +
+  geom_raster() +
+  facet_wrap(~dial, nrow = 1) +
+  coord_fixed(expand = FALSE) +
+  theme_void() +
+  theme(
+    strip.text = element_text(family = bauhaus_font_family("semibold"), colour = "#004F5D", margin = margin(b = 4)),
+    panel.spacing = unit(10, "pt"),
+    plot.background = element_rect(fill = "white", colour = NA),
+    plot.margin = margin(8, 8, 8, 8)
+  )
+```
+
+## Grain in your plots
+
+Every Bauhaus theme puts the grain on the plot background, using `element_grain()`. Panels, legends
+and strips are left transparent, so the grain runs under the whole plot, as it runs under the whole
+screen in the screensaver.
+
+The grain is drawn at a fixed physical size, 150 samples per inch by default, so it looks the same
+on a small figure and a poster. That density matches the screensaver on a Retina laptop screen.
+
+```{r default}
+p <- ggplot(mpg, aes(displ, hwy)) +
+  geom_point(size = 2) +
+  labs(title = "Default grain", x = "Displacement (l)", y = "Highway mpg")
+
+p + theme_bauhaus("tennis")
+```
+
+### Strength and size
+
+`grain` sets the strength and `grain_density` the size:
+
+```{r stronger}
+p + labs(title = "grain = 12, grain_density = 70") +
+  theme_bauhaus("tennis", grain = 12, grain_density = 70)
+```
+
+```{r flat}
+p + labs(title = "grain = FALSE") +
+  theme_bauhaus("tennis", grain = FALSE)
+```
+
+### Grain on any background
+
+`element_grain()` is a rectangle element like `element_rect()`, so it can go anywhere a rectangle
+can, in any theme:
+
+```{r any-theme}
+ggplot(mpg, aes(class)) +
+  geom_bar(fill = "#30475E") +
+  labs(title = "theme_classic() on grained paper", x = NULL, y = "Count") +
+  theme_classic(base_family = bauhaus_font_family()) +
+  theme(plot.background = element_grain(fill = "#F2EBDD", sigma = 6, colour = NA))
+```
+
+```{r panel-only}
+ggplot(mpg, aes(displ, hwy)) +
+  geom_point(colour = "white") +
+  labs(title = "Grain on the panel only", x = "Displacement (l)", y = "Highway mpg") +
+  theme_bauhaus("white") +
+  theme(panel.background = element_grain(fill = bauhaus_colours("ocean")[["paper"]], sigma = 5.3, colour = NA))
+```
+
+Adding a plain `element_rect()` on top keeps the grain unless it sets a `fill`, so you can add a
+border without losing the paper:
+
+```{r border}
+p + labs(title = "A border on the grained background") +
+  theme_bauhaus("salmon") +
+  theme(plot.background = element_rect(colour = bauhaus_colours("salmon")[["track"]], linewidth = 1.5))
+```
+
+## Files and devices
+
+The grain is a raster image drawn when the plot is rendered, so it works on every graphics device.
+In PNG, JPEG and TIFF files it costs very little. In PDF and SVG files the raster makes the file
+larger; to draw flat backgrounds everywhere, turn the grain off for the session:
+
+```{r option, eval = FALSE}
+options(bauhaus.grain = FALSE)
+```
+
+Very large outputs are capped at 25 million grain samples (set
+`options(bauhaus.grain_max_samples = ...)` to change this); above that the samples grow a little.
