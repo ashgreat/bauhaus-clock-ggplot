@@ -190,9 +190,8 @@ automatically:
   General › Graphics › Backend: AGG*. Positron uses ragg when it is installed.
 * **svglite** for SVG.
 
-Other devices don't know the bundled font. `pdf()` and `postscript()` fall back to Helvetica, and
-the default Windows and macOS screen devices to their system sans. To get the real typeface there,
-render text with showtext:
+Other devices don't know the bundled font. `pdf()`, `postscript()` and the default macOS screen device (Quartz)
+fall back to Helvetica, and the default Windows screen device to its system sans. To get the real typeface there, render text with showtext:
 
 ```{r showtext, eval = FALSE}
 bauhaus_showtext() # registers the fonts with showtext and turns it on
