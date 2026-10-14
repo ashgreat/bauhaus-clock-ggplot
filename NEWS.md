@@ -1,3 +1,9 @@
+# bauhaus (development version)
+
+* On macOS, the default screen device (Quartz, also RStudio's default backend) now draws text in
+  Helvetica instead of drawing no text, with a warning per label, when the bundled font isn't
+  installed on the system.
+
 # bauhaus 0.1.0
 
 * First release.

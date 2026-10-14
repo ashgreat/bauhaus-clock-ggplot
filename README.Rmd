@@ -274,11 +274,12 @@ graphics device uses systemfonts:
 * **Files**: `ggsave()` uses ragg for PNG, JPEG and TIFF when ragg is installed, and svglite for
   SVG.
 * **R Markdown and Quarto**: set the chunk option `dev = "ragg_png"`.
-* **RStudio**: *Tools › Global Options › General › Graphics › Backend: AGG*.
+* **RStudio**: *Tools › Global Options › General › Graphics › Backend: AGG*. RStudio's default
+  backend on macOS is Quartz, which can't see the bundled font.
 * **Positron**: uses ragg when it is installed.
 
-Other devices don't see the bundled font: `pdf()` falls back to Helvetica and the default Windows
-and macOS screen devices to their system sans. To get the real typeface there, call
+Other devices don't see the bundled font: `pdf()` and the default macOS screen device (Quartz) fall
+back to Helvetica, and the default Windows screen device to its system sans. To get the real typeface there, call
 `bauhaus_showtext()`, which registers the fonts with [showtext](https://github.com/yixuan/showtext)
 and turns it on. `bauhaus_font_files()` gives the paths of the font files, if you would rather
 install them on your system.
