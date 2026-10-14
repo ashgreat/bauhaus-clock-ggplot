@@ -279,13 +279,14 @@ systemfonts:
   SVG.
 - **R Markdown and Quarto**: set the chunk option `dev = "ragg_png"`.
 - **RStudio**: *Tools › Global Options › General › Graphics › Backend:
-  AGG*.
+  AGG*. RStudio’s default backend on macOS is Quartz, which can’t see
+  the bundled font.
 - **Positron**: uses ragg when it is installed.
 
 Other devices don’t see the bundled font:
-[`pdf()`](https://rdrr.io/r/grDevices/pdf.html) falls back to Helvetica
-and the default Windows and macOS screen devices to their system sans.
-To get the real typeface there, call
+[`pdf()`](https://rdrr.io/r/grDevices/pdf.html) and the default macOS
+screen device (Quartz) fall back to Helvetica, and the default Windows
+screen device to its system sans. To get the real typeface there, call
 [`bauhaus_showtext()`](https://ashgreat.github.io/bauhaus-clock-ggplot/reference/bauhaus_font_family.md),
 which registers the fonts with
 [showtext](https://github.com/yixuan/showtext) and turns it on.

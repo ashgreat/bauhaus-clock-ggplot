@@ -464,11 +464,11 @@
 <li>
 <strong>R Markdown and Quarto</strong>: set the chunk option <code>dev = "ragg_png"</code>.</li>
 <li>
-<strong>RStudio</strong>: <em>Tools › Global Options › General › Graphics › Backend: AGG</em>.</li>
+<strong>RStudio</strong>: <em>Tools › Global Options › General › Graphics › Backend: AGG</em>. RStudio’s default backend on macOS is Quartz, which can’t see the bundled font.</li>
 <li>
 <strong>Positron</strong>: uses ragg when it is installed.</li>
 </ul>
-<p>Other devices don’t see the bundled font: <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code> falls back to Helvetica and the default Windows and macOS screen devices to their system sans. To get the real typeface there, call <code><a href="reference/bauhaus_font_family.html">bauhaus_showtext()</a></code>, which registers the fonts with <a href="https://github.com/yixuan/showtext" class="external-link">showtext</a> and turns it on. <code><a href="reference/bauhaus_font_family.html">bauhaus_font_files()</a></code> gives the paths of the font files, if you would rather install them on your system.</p>
+<p>Other devices don’t see the bundled font: <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code> and the default macOS screen device (Quartz) fall back to Helvetica, and the default Windows screen device to its system sans. To get the real typeface there, call <code><a href="reference/bauhaus_font_family.html">bauhaus_showtext()</a></code>, which registers the fonts with <a href="https://github.com/yixuan/showtext" class="external-link">showtext</a> and turns it on. <code><a href="reference/bauhaus_font_family.html">bauhaus_font_files()</a></code> gives the paths of the font files, if you would rather install them on your system.</p>
 </div>
 <div class="section level2">
 <h2 id="the-dial-itself">The dial itself<a class="anchor" aria-label="anchor" href="#the-dial-itself"></a>
