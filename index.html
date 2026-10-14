@@ -464,17 +464,57 @@
 <li>
 <strong>R Markdown and Quarto</strong>: set the chunk option <code>dev = "ragg_png"</code>.</li>
 <li>
-<strong>RStudio</strong>: <em>Tools › Global Options › General › Graphics › Backend: AGG</em>. RStudio’s default backend on macOS is Quartz, which can’t see the bundled font.</li>
+<strong>RStudio</strong>: set the graphics backend to AGG (see below).</li>
 <li>
 <strong>Positron</strong>: uses ragg when it is installed.</li>
 </ul>
-<p>Other devices don’t see the bundled font: <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code> and the default macOS screen device (Quartz) fall back to Helvetica, and the default Windows screen device to its system sans. To get the real typeface there, call <code><a href="reference/bauhaus_font_family.html">bauhaus_showtext()</a></code>, which registers the fonts with <a href="https://github.com/yixuan/showtext" class="external-link">showtext</a> and turns it on. <code><a href="reference/bauhaus_font_family.html">bauhaus_font_files()</a></code> gives the paths of the font files, if you would rather install them on your system.</p>
+<p>Other devices don’t see the bundled font: <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code> and the default macOS screen device (Quartz) fall back to Helvetica, and the default Windows screen device to its system sans. Use <code><a href="reference/bauhaus_font_family.html">bauhaus_showtext()</a></code> (see below) to get the real typeface there. <code><a href="reference/bauhaus_font_family.html">bauhaus_font_files()</a></code> gives the paths of the font files, if you would rather install them on your system.</p>
+<div class="section level3">
+<h3 id="rstudio-on-a-mac-switch-the-graphics-backend-to-agg">RStudio on a Mac: switch the graphics backend to AGG<a class="anchor" aria-label="anchor" href="#rstudio-on-a-mac-switch-the-graphics-backend-to-agg"></a>
+</h3>
+<p>RStudio draws plots in the Plots pane with Quartz on macOS by default, and Quartz can’t see the bundled font. To use it in the Plots pane:</p>
+<ol style="list-style-type: decimal">
+<li>Install ragg: <code>install.packages("ragg")</code>.</li>
+<li>Open <em>Tools › Global Options › General › Graphics</em> and set <strong>Backend</strong> to <strong>AGG</strong>. Click <strong>Apply</strong>.</li>
+<li>Restart R with <em>Session › Restart R</em>. The new backend only applies to new R sessions.</li>
+</ol>
+<p>Plots now use Zalando Sans Expanded. The setting is remembered, so this is a one-time change. The same setting fixes the font on Windows and Linux, where RStudio’s default backend can’t see it either.</p>
+<p>If <code><a href="https://rdrr.io/r/base/warnings.html" class="external-link">warnings()</a></code> still lists <code>no font could be found for family "Zalando Sans Expanded"</code> after the switch, those warnings are left over from before it; they go away after the restart.</p>
+</div>
+<div class="section level3">
+<h3 id="other-devices-bauhaus_showtext">Other devices: <code>bauhaus_showtext()</code>
+<a class="anchor" aria-label="anchor" href="#other-devices-bauhaus_showtext"></a>
+</h3>
+<p><code><a href="reference/bauhaus_font_family.html">bauhaus_showtext()</a></code> registers the bundled fonts with <a href="https://github.com/yixuan/showtext" class="external-link">showtext</a> and turns showtext on, so that every device draws the real typeface: <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code>, the default Quartz and Windows screen devices, and RStudio’s default backend. It needs the showtext package:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"showtext"</span><span class="op">)</span></span></code></pre></div>
+<p>Call it once per R session, before drawing:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ashgreat.github.io/bauhaus-clock-ggplot/">bauhaus</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/bauhaus_font_family.html">bauhaus_showtext</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="reference/theme_bauhaus_dials.html">theme_bauhaus_turquoise</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># the screen device now uses Zalando Sans Expanded</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"plot.pdf"</span>, width <span class="op">=</span> <span class="fl">7</span>, height <span class="op">=</span> <span class="fl">4.5</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p</span> <span class="op">+</span> <span class="fu"><a href="reference/theme_bauhaus_dials.html">theme_bauhaus_turquoise</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/grDevices/dev.html" class="external-link">dev.off</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>A few things to know:</p>
+<ul>
+<li>When saving a PNG, JPEG or TIFF while showtext is on, tell showtext the resolution so text comes out the right size: <code>showtext::showtext_opts(dpi = 300)</code> before <code>ggsave("plot.png", dpi = 300)</code>.</li>
+<li>
+<code>bauhaus_showtext(enable = FALSE)</code> registers the fonts without turning showtext on for everything. Turn it on for one plot with <code><a href="https://rdrr.io/pkg/showtext/man/showtext_begin.html" class="external-link">showtext::showtext_begin()</a></code> and <code><a href="https://rdrr.io/pkg/showtext/man/showtext_end.html" class="external-link">showtext::showtext_end()</a></code>.</li>
+<li>
+<code>showtext::showtext_auto(FALSE)</code> turns showtext off again.</li>
+<li>Loading showtext with <code><a href="https://github.com/yixuan/showtext" class="external-link">library(showtext)</a></code> is not enough: it only knows the bundled fonts after <code><a href="reference/bauhaus_font_family.html">bauhaus_showtext()</a></code>.</li>
+<li>You don’t need showtext with ragg or the AGG backend; those use the bundled font directly.</li>
+</ul>
+</div>
 </div>
 <div class="section level2">
 <h2 id="the-dial-itself">The dial itself<a class="anchor" aria-label="anchor" href="#the-dial-itself"></a>
 </h2>
 <p><code><a href="reference/bauhaus_clock.html">bauhaus_clock()</a></code> draws the screensaver’s dial as a ggplot: the minute track and numerals, steel hour indices with lume inlays, hour numerals (with the dial’s capsule-shaped “1”), and the three hands with their tinted shadows, on the grained plate. Everything is drawn as shapes, so it scales to any size.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/bauhaus_clock.html">bauhaus_clock</a></span><span class="op">(</span><span class="st">"turquoise"</span><span class="op">)</span> <span class="op">|</span> <span class="fu"><a href="reference/bauhaus_clock.html">bauhaus_clock</a></span><span class="op">(</span><span class="st">"noir"</span>, time <span class="op">=</span> <span class="st">"16:42:30"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-clock-1.png" alt="" width="100%"></p>
 </div>

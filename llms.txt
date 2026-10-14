@@ -278,21 +278,86 @@ systemfonts:
   ragg for PNG, JPEG and TIFF when ragg is installed, and svglite for
   SVG.
 - **R Markdown and Quarto**: set the chunk option `dev = "ragg_png"`.
-- **RStudio**: *Tools › Global Options › General › Graphics › Backend:
-  AGG*. RStudio’s default backend on macOS is Quartz, which can’t see
-  the bundled font.
+- **RStudio**: set the graphics backend to AGG (see below).
 - **Positron**: uses ragg when it is installed.
 
 Other devices don’t see the bundled font:
 [`pdf()`](https://rdrr.io/r/grDevices/pdf.html) and the default macOS
 screen device (Quartz) fall back to Helvetica, and the default Windows
-screen device to its system sans. To get the real typeface there, call
-[`bauhaus_showtext()`](https://ashgreat.github.io/bauhaus-clock-ggplot/reference/bauhaus_font_family.md),
-which registers the fonts with
-[showtext](https://github.com/yixuan/showtext) and turns it on.
+screen device to its system sans. Use
+[`bauhaus_showtext()`](https://ashgreat.github.io/bauhaus-clock-ggplot/reference/bauhaus_font_family.md)
+(see below) to get the real typeface there.
 [`bauhaus_font_files()`](https://ashgreat.github.io/bauhaus-clock-ggplot/reference/bauhaus_font_family.md)
 gives the paths of the font files, if you would rather install them on
 your system.
+
+### RStudio on a Mac: switch the graphics backend to AGG
+
+RStudio draws plots in the Plots pane with Quartz on macOS by default,
+and Quartz can’t see the bundled font. To use it in the Plots pane:
+
+1.  Install ragg: `install.packages("ragg")`.
+2.  Open *Tools › Global Options › General › Graphics* and set
+    **Backend** to **AGG**. Click **Apply**.
+3.  Restart R with *Session › Restart R*. The new backend only applies
+    to new R sessions.
+
+Plots now use Zalando Sans Expanded. The setting is remembered, so this
+is a one-time change. The same setting fixes the font on Windows and
+Linux, where RStudio’s default backend can’t see it either.
+
+If [`warnings()`](https://rdrr.io/r/base/warnings.html) still lists
+`no font could be found for family "Zalando Sans Expanded"` after the
+switch, those warnings are left over from before it; they go away after
+the restart.
+
+### Other devices: `bauhaus_showtext()`
+
+[`bauhaus_showtext()`](https://ashgreat.github.io/bauhaus-clock-ggplot/reference/bauhaus_font_family.md)
+registers the bundled fonts with
+[showtext](https://github.com/yixuan/showtext) and turns showtext on, so
+that every device draws the real typeface:
+[`pdf()`](https://rdrr.io/r/grDevices/pdf.html), the default Quartz and
+Windows screen devices, and RStudio’s default backend. It needs the
+showtext package:
+
+``` r
+
+install.packages("showtext")
+```
+
+Call it once per R session, before drawing:
+
+``` r
+
+library(bauhaus)
+bauhaus_showtext()
+
+p + theme_bauhaus_turquoise() # the screen device now uses Zalando Sans Expanded
+
+pdf("plot.pdf", width = 7, height = 4.5)
+print(p + theme_bauhaus_turquoise())
+dev.off()
+```
+
+A few things to know:
+
+- When saving a PNG, JPEG or TIFF while showtext is on, tell showtext
+  the resolution so text comes out the right size:
+  `showtext::showtext_opts(dpi = 300)` before
+  `ggsave("plot.png", dpi = 300)`.
+- `bauhaus_showtext(enable = FALSE)` registers the fonts without turning
+  showtext on for everything. Turn it on for one plot with
+  [`showtext::showtext_begin()`](https://rdrr.io/pkg/showtext/man/showtext_begin.html)
+  and
+  [`showtext::showtext_end()`](https://rdrr.io/pkg/showtext/man/showtext_end.html).
+- `showtext::showtext_auto(FALSE)` turns showtext off again.
+- Loading showtext with
+  [`library(showtext)`](https://github.com/yixuan/showtext) is not
+  enough: it only knows the bundled fonts after
+  [`bauhaus_showtext()`](https://ashgreat.github.io/bauhaus-clock-ggplot/reference/bauhaus_font_family.md).
+- You don’t need showtext with ragg or the AGG backend; those use the
+  bundled font directly.
 
 ## The dial itself
 

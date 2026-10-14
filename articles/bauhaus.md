@@ -239,10 +239,11 @@ installing. Devices built on systemfonts find it automatically:
 - **svglite** for SVG.
 
 Other devices don’t know the bundled font.
-[`pdf()`](https://rdrr.io/r/grDevices/pdf.html) and
-[`postscript()`](https://rdrr.io/r/grDevices/postscript.html) fall back
-to Helvetica, and the default Windows and macOS screen devices to their
-system sans. To get the real typeface there, render text with showtext:
+[`pdf()`](https://rdrr.io/r/grDevices/pdf.html),
+[`postscript()`](https://rdrr.io/r/grDevices/postscript.html) and the
+default macOS screen device (Quartz) fall back to Helvetica, and the
+default Windows screen device to its system sans. To get the real
+typeface there, render text with showtext:
 
 ``` r
 

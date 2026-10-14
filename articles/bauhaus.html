@@ -334,10 +334,11 @@ ragg when it is installed.</li>
 <li>
 <strong>svglite</strong> for SVG.</li>
 </ul>
-<p>Other devices don’t know the bundled font. <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code> and
-<code><a href="https://rdrr.io/r/grDevices/postscript.html" class="external-link">postscript()</a></code> fall back to Helvetica, and the default
-Windows and macOS screen devices to their system sans. To get the real
-typeface there, render text with showtext:</p>
+<p>Other devices don’t know the bundled font. <code><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf()</a></code>,
+<code><a href="https://rdrr.io/r/grDevices/postscript.html" class="external-link">postscript()</a></code> and the default macOS screen device (Quartz)
+fall back to Helvetica, and the default Windows screen device to its
+system sans. To get the real typeface there, render text with
+showtext:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/bauhaus_font_family.html">bauhaus_showtext</a></span><span class="op">(</span><span class="op">)</span> <span class="co"># registers the fonts with showtext and turns it on</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/grDevices/pdf.html" class="external-link">pdf</a></span><span class="op">(</span><span class="st">"plot.pdf"</span>, width <span class="op">=</span> <span class="fl">7</span>, height <span class="op">=</span> <span class="fl">4.5</span><span class="op">)</span></span>
