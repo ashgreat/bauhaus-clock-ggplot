@@ -70,9 +70,11 @@ bauhaus_showtext <- function(enable = TRUE) {
 }
 
 # Called from .onLoad(). Devices that do not use systemfonts need to know the family names too:
-# pdf() and postscript() refuse unknown families, so the names are mapped to Helvetica there, and on
-# Windows they are added to the font database (Windows substitutes a default face if the font is not
-# installed) to avoid a warning for every piece of text.
+# pdf() and postscript() refuse unknown families, so the names are mapped to Helvetica there; the
+# macOS quartz() device draws no text at all for a family it cannot find, so the names are mapped to
+# its sans there unless the font is installed on the system; and on Windows they are added to the
+# font database (Windows substitutes a default face if the font is not installed) to avoid a warning
+# for every piece of text.
 register_device_fallbacks <- function() {
   families <- vapply(c("regular", "medium", "semibold"), bauhaus_font_family, character(1))
   try(
@@ -90,6 +92,20 @@ register_device_fallbacks <- function() {
     },
     silent = TRUE
   )
+  if (Sys.info()[["sysname"]] == "Darwin") {
+    try(
+      {
+        quartz_fonts <- get("quartzFonts", envir = asNamespace("grDevices"))
+        installed <- tryCatch(systemfonts::system_fonts()$family, error = function(e) character())
+        missing <- setdiff(families, c(names(quartz_fonts()), installed))
+        if (length(missing)) {
+          sans <- quartz_fonts()$sans
+          do.call(quartz_fonts, stats::setNames(rep(list(sans), length(missing)), missing))
+        }
+      },
+      silent = TRUE
+    )
+  }
   if (.Platform$OS.type == "windows") {
     try(
       {
